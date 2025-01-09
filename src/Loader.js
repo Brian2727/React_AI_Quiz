@@ -79,10 +79,9 @@ export default function Loader({status,dispatch,prompt}) {
     }
 
     const generate_quiz_from_prompt = async () => {
-        const API_KEY = process.env.OPEN_AI_API_KEY
+        const API_KEY = process.env.REACT_APP_OPEN_AI_API_KEY
         const openai = new OpenAI({apiKey:API_KEY,dangerouslyAllowBrowser: true});
         try{
-
             const response = await openai.chat.completions.create({
                         model: "gpt-3.5-turbo",
                         messages: [
