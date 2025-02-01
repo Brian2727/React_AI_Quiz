@@ -1,7 +1,16 @@
-export function NextButton({dispatch,answer}) {
-    if (answer === null) return null
+import React from 'react';
+import './NextButton.css';
+
+export function NextButton({dispatch, answer}) {
+    if (answer === null) return null;
 
     return (
-        <button className={"btn btn-ui"} onClick={() => dispatch({type:"nextQuestion"})}>Next</button>
-    )
+        <button 
+            className="next-button"
+            onClick={() => dispatch({type: "nextQuestion"})}
+        >
+            Next
+            <span className="arrow">→</span>
+        </button>
+    );
 }

@@ -1,46 +1,85 @@
 import React, {useState} from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {Input} from '@/components/ui/Input'
+import './LoginForm.css';
 
-const LogInForm = ({onSubmit}) => {
-    const [userEmail,setUserEmail] = useState('');
+export const LogInForm = ({onSubmit,dispatch}) => {
+    const [userEmail, setUserEmail] = useState('');
     const [userPassword, setUserPassword] = useState('');
     const [error, setError] = useState('');
 
     const handleOnSubmit = (e) => {
         e.preventDefault();
         if (!userEmail || !userPassword) {
-            setError("Both Fields Are Required")
+            setError("Please fill in all fields");
+            return;
+        }
+        if (!isValidEmail(userEmail)) {
+            setError("Please enter a valid email address");
             return;
         }
         setError("");
         onSubmit(userEmail, userPassword);
-
     }
 
+    const isValidEmail = (email) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
 
     return (
-        <Card className="text-center rounded-2x1 shadow-lg">
-            <CardHeader >
-                <CardTitle className="text-center text-2x1 font-bold">Login</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleOnSubmit} className="flex flex-col gap-4">
-                    {error && <p className="text-red-500">{error}</p>}
+        <div className="login-card">
+            <div className="logo-container">
+                <div className="logo">
+                    <span className="logo-text">AI</span>
+                    <span className="logo-dot"></span>
+                </div>
+                <h1 className="title">Welcome Back</h1>
+                <p className="subtitle">Enter your credentials to continue</p>
+            </div>
 
-                    <Input
+            <form onSubmit={handleOnSubmit} className="login-form">
+                {error && (
+                    <div className="error-message">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="error-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        {error}
+                    </div>
+                )}
+
+                <div className="input-group">
+                    <input
+                        id="email"
                         type="email"
-                        placeholder="Enter your email"
+                        required
+                        className="input-field"
                         value={userEmail}
-                        onChange={(e) => setUserEmail(userEmail)}
-                        className="shadow-sm"
+                        onChange={(e) => setUserEmail(e.target.value)}
                     />
-                </form>
-            </CardContent>
+                    <label htmlFor="email" className="input-label">Email</label>
+                </div>
 
+                <div className="input-group">
+                    <input
+                        id="password"
+                        type="password"
+                        required
+                        className="input-field"
+                        value={userPassword}
+                        onChange={(e) => setUserPassword(e.target.value)}
+                    />
+                    <label htmlFor="password" className="input-label">Password</label>
+                </div>
 
-        </Card>
+                <button type="submit" className="login-button">
+                    <span className="button-text">Sign In</span>
+                    <span className="button-icon">→</span>
+                </button>
+                <button onClick={() => dispatch({type: "signUp"})} className="login-button">
+                    <span className="button-text">Sign Up</span>
+                    <span className="button-icon">→</span>
+                </button>
+            </form>
+        </div>
     );
-};
+}
 
 export default LogInForm;

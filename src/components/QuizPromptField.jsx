@@ -1,34 +1,33 @@
 import React, { useState } from 'react';
-export const QuizPromptField = ({dispatch}) => {
+import './QuizPromptField.css';
 
-
+function QuizPromptField({ dispatch }) {
     const [prompt, setPrompt] = useState('');
 
-    const handleChange = (event) => {
-        setPrompt(event.target.value);
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!prompt) return;
+        dispatch({ type: 'loading', payload: prompt });
     };
 
     return (
-        <div style={{padding: '20px'}} className="start">
-              <textarea
-                  value={prompt}
-                  onChange={handleChange}
-                  placeholder="Type your prompt here..."
-                  rows="6"
-                  cols="50"
-                  style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '12px',
-                      border: '1px solid #ccc',
-                      fontSize: '16px',
-                      resize: 'vertical',
-                      boxSizing: 'border-box',
-                  }}
-              />
-            <button style={{marginTop: '20px'}} className={'btn btn-ui'} onClick={() => dispatch({type: 'loading',payload:prompt})}>Start</button>
-        </div>
-    )
+        <form onSubmit={handleSubmit} className="prompt-form">
+            <div className="prompt-group">
+                <label htmlFor="prompt">Quiz Topic</label>
+                <input
+                    type="text"
+                    id="prompt"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Enter your quiz topic and difficulty..."
+                    required
+                />
+            </div>
+            <button type="submit" className="btn">
+                Start Quiz
+            </button>
+        </form>
+    );
 }
 
 export default QuizPromptField;

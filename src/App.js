@@ -1,4 +1,3 @@
-
 import './App.css';
 import Header from "./Header";
 import {useEffect, useReducer} from "react";
@@ -11,6 +10,8 @@ import {Progress} from "./components/Progress";
 import {FinishedScreen} from "./components/FinishedScreen";
 import {Footer} from "./components/Footer";
 import {Timer} from "./components/Timer";
+import {LogInForm} from "./components/LogIn/LogInForm.jsx";
+import {SignUpForm} from "./components/LogIn/SignUpForm.jsx";
 
 const initialState = {
     questions: [],
@@ -24,7 +25,21 @@ const initialState = {
 function reducer(state,action) {
 
     switch(action.type){
-
+        case 'logIn':
+            return {
+                ...state,
+                status: 'loggedIn',
+            }
+        case 'newUser':
+            return {
+                ...state,
+                status: 'newUser',
+            }
+        case 'signUp':
+            return {
+                ...state,
+                status: 'newUser',
+            }
         case 'dataReceived':
             return {
                 ...state,
@@ -70,31 +85,42 @@ export default function App() {
     const [{questions , status, index, answer,points,secondsRemaining,prompt},dispatch] = useReducer(reducer
                                             ,initialState);
 
-
+    const logIn = (data) => {
+        dispatch({type: 'loading', payload: data.prompt})
+    }
+    const signUp = (data) => {
+        dispatch({type: 'loading', payload: data.prompt})
+    }
 
     const numQuestions = questions.length
 
       return (
         <div className="app">
+            <div className="background-shapes">
+                <div className="shape shape-1"></div>
+                <div className="shape shape-2"></div>
+                <div className="shape shape-3"></div>
+            </div>
             <Header></Header>
             <Main>
                 {status === 'loading' && <Loader prompt={prompt} status={status} dispatch={dispatch}></Loader>}
-                {status === 'ready' && <StartScreen numQuestions={numQuestions} dispatch={dispatch}/>}
+                {status === 'ready' && <LogInForm onSubmit={logIn} dispatch={dispatch}></LogInForm>}
+                {status === 'newUser' && <SignUpForm onSubmit={signUp}></SignUpForm>}
+                {status === 'loggedIn' && <StartScreen numQuestions={numQuestions} dispatch={dispatch}></StartScreen>}
                 {status === 'active' && (
                     <>
                         <Progress numQuestions={numQuestions} points={points} index={index}></Progress>
                         <Question question={questions[index]} dispatch={dispatch} answer={answer} points={points}></Question>
                         <Footer>
-                                <Timer dispatch={dispatch} secondsRemaining={secondsRemaining}></Timer>
-                                <NextButton dispatch={dispatch} answer={answer}></NextButton>
-                            </Footer>
+                            <Timer dispatch={dispatch} secondsRemaining={secondsRemaining}/>
+                            <NextButton dispatch={dispatch} answer={answer}/>
+                        </Footer>
                     </>
                 )}
-                {status === 'finished' && <FinishedScreen numQuestions={numQuestions} points={points} dispatch={dispatch}></FinishedScreen>}
-
+                {status === 'finished' && (
+                    <FinishedScreen points={points} maxPossiblePoints={numQuestions} dispatch={dispatch}></FinishedScreen>
+                )}
             </Main>
         </div>
       );
 }
-
-
