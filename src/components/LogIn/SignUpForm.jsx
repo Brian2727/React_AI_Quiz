@@ -93,7 +93,7 @@ export function SignUpForm({onSubmit, dispatch}) {
                 <button 
                     onClick={(e) => {
                         e.preventDefault();
-                        dispatch({type: "logIn"});
+                        dispatch({type: "login"});
                     }} 
                     className="login-button"
                 >

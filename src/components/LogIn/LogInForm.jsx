@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import './LoginForm.css';
+import {useAuth} from "../Context/AuthContext";
 
 export const LogInForm = ({onSubmit,dispatch}) => {
     const [userEmail, setUserEmail] = useState('');
@@ -7,6 +8,7 @@ export const LogInForm = ({onSubmit,dispatch}) => {
     const [error, setError] = useState('');
 
     const handleOnSubmit = (e) => {
+
         e.preventDefault();
         if (!userEmail || !userPassword) {
             setError("Please fill in all fields");
@@ -17,6 +19,8 @@ export const LogInForm = ({onSubmit,dispatch}) => {
             return;
         }
         setError("");
+        setUserEmail('');
+        setUserPassword('');
         onSubmit(userEmail, userPassword);
     }
 
@@ -73,7 +77,7 @@ export const LogInForm = ({onSubmit,dispatch}) => {
                     <span className="button-text">Sign In</span>
                     <span className="button-icon">→</span>
                 </button>
-                <button onClick={() => dispatch({type: "signUp"})} className="login-button">
+                <button onClick={() => dispatch({type: "newUser"})} className="login-button">
                     <span className="button-text">Sign Up</span>
                     <span className="button-icon">→</span>
                 </button>

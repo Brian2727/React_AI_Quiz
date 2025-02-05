@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Confetti from 'react-confetti';
 import './FinishedScreen.css';
 
-export function FinishedScreen({points, numQuestions, dispatch}) {
+export function FinishedScreen({points, maxPossiblePoints, dispatch}) {
     const [windowDimension, setWindowDimension] = useState({
         width: window.innerWidth,
         height: window.innerHeight
@@ -26,7 +26,8 @@ export function FinishedScreen({points, numQuestions, dispatch}) {
         };
     }, []);
 
-    const percentage = (points / numQuestions) * 100;
+    console.log(maxPossiblePoints);
+    const percentage = (points / maxPossiblePoints ) * 100;
     
     const getEmoji = () => {
         if (percentage === 100) return '🏆';
@@ -65,7 +66,7 @@ export function FinishedScreen({points, numQuestions, dispatch}) {
                 <h2 className="result-message">{getMessage()}</h2>
                 <div className="score-container">
                     <p className="score-text">
-                        You scored <span className="points">{points}</span> out of <span className="total">{numQuestions}</span>
+                        You scored <span className="points">{points}</span> out of <span className="total">{maxPossiblePoints}</span>
                     </p>
                     <div className="percentage-bar">
                         <div 

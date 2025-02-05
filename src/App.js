@@ -12,33 +12,40 @@ import {Footer} from "./components/Footer";
 import {Timer} from "./components/Timer";
 import {LogInForm} from "./components/LogIn/LogInForm.jsx";
 import {SignUpForm} from "./components/LogIn/SignUpForm.jsx";
+import {loginEmail} from "./components/Services/apiAuth.js";
+import {useAuth} from "./components/Context/AuthContext";
+import {Menu} from "./components/Menu/Menu";
 
 const initialState = {
     questions: [],
-    status: 'ready',
+    status: 'login',
     index:0,
     answer:null,
     points:0,
     secondsRemaining: 200,
-
 }
-function reducer(state,action) {
 
+function reducer(state,action) {
     switch(action.type){
-        case 'logIn':
+        case 'logout':
             return {
-                ...state,
-                status: 'loggedIn',
+                ...initialState,
+                status: 'login'
+            }
+        case 'login':
+            return {
+                ...initialState,
+                status: 'login'
             }
         case 'newUser':
             return {
                 ...state,
                 status: 'newUser',
             }
-        case 'signUp':
+        case 'loggedIn':
             return {
                 ...state,
-                status: 'newUser',
+                status: 'loggedIn',
             }
         case 'dataReceived':
             return {
@@ -70,7 +77,7 @@ function reducer(state,action) {
             }
             return {...state,index:state.index+1,answer:null};
         case 'restart':
-            return {...state,index:0,answer:null,status:'ready',secondsRemaining: 200,points:0};
+            return {...state,index:0,answer:null,status:'loggedIn',secondsRemaining: 200,points:0};
         case 'tick':
             if (state.secondsRemaining === 0){
                 return {...state,status:'finished'};
@@ -81,18 +88,35 @@ function reducer(state,action) {
     }
 }
 export default function App() {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+
+    const {userLoggedIn} = useAuth();
     const [{questions , status, index, answer,points,secondsRemaining,prompt},dispatch] = useReducer(reducer
                                             ,initialState);
 
-    const logIn = (data) => {
-        dispatch({type: 'loading', payload: data.prompt})
+    const logIn = async (email, password) => {
+        let data = {
+            email:email,
+            password:password
+        }
+        try {
+            await loginEmail(email, password).then((userCredential) => {
+                // Signed in successfully
+                dispatch({type: 'loggedIn', payload: data})
+            })
+          } catch (err) {
+            dispatch({type: 'login', payload: data})
+          }
     }
     const signUp = (data) => {
-        dispatch({type: 'loading', payload: data.prompt})
+        dispatch({type: 'loggedIn', payload: data.prompt})
     }
 
-    const numQuestions = questions.length
+    const numQuestions = 10
+    useEffect(function(){
+        if (userLoggedIn){
+            dispatch({type: 'loggedIn'})
+        }
+    },[userLoggedIn])
 
       return (
         <div className="app">
@@ -101,26 +125,35 @@ export default function App() {
                 <div className="shape shape-2"></div>
                 <div className="shape shape-3"></div>
             </div>
+
             <Header></Header>
-            <Main>
-                {status === 'loading' && <Loader prompt={prompt} status={status} dispatch={dispatch}></Loader>}
-                {status === 'ready' && <LogInForm onSubmit={logIn} dispatch={dispatch}></LogInForm>}
-                {status === 'newUser' && <SignUpForm onSubmit={signUp}></SignUpForm>}
-                {status === 'loggedIn' && <StartScreen numQuestions={numQuestions} dispatch={dispatch}></StartScreen>}
-                {status === 'active' && (
-                    <>
-                        <Progress numQuestions={numQuestions} points={points} index={index}></Progress>
-                        <Question question={questions[index]} dispatch={dispatch} answer={answer} points={points}></Question>
-                        <Footer>
-                            <Timer dispatch={dispatch} secondsRemaining={secondsRemaining}/>
-                            <NextButton dispatch={dispatch} answer={answer}/>
-                        </Footer>
-                    </>
-                )}
-                {status === 'finished' && (
-                    <FinishedScreen points={points} maxPossiblePoints={numQuestions} dispatch={dispatch}></FinishedScreen>
-                )}
-            </Main>
+            {status !== 'login' && status !== 'newUser' && <Menu dispatch={dispatch} />}
+            {!userLoggedIn &&
+                <Main>
+                    {status === 'login' && <LogInForm onSubmit={logIn} dispatch={dispatch}></LogInForm>}
+                    {status === 'newUser' && <SignUpForm onSubmit={signUp} dispatch={dispatch}></SignUpForm>}
+                </Main>
+            }
+            {userLoggedIn && <Main>
+                    {status === 'loading' && <Loader prompt={prompt} status={status} dispatch={dispatch}></Loader>}
+                    {status === 'loggedIn' && <StartScreen numQuestions={numQuestions} dispatch={dispatch}></StartScreen>}
+                    {status === 'active' && (
+                        <>
+                            <Progress numQuestions={numQuestions} points={points} index={index}></Progress>
+                            <Question question={questions[index]} dispatch={dispatch} answer={answer} points={points}></Question>
+                            <Footer>
+                                <Timer dispatch={dispatch} secondsRemaining={secondsRemaining}/>
+                                <NextButton dispatch={dispatch} answer={answer}/>
+                            </Footer>
+                        </>
+                    )}
+                    {status === 'finished' && (
+                        <FinishedScreen points={points} maxPossiblePoints={numQuestions} dispatch={dispatch}></FinishedScreen>
+                    )}
+                </Main> }
+
+
+
         </div>
       );
 }
